@@ -9,30 +9,75 @@ import {
   TouchableHighlight,
 } from "react-native";
 import { TextInput } from "react-native-paper";
-
+import Alert from "../../../Alert/Alert";
 import styles from "./styles";
 import { theme } from "../../../../globalStyles/theme";
 import globalStyles from "../../../../globalStyles/globalStyles";
 
 const Register = ({ navigation }) => {
-  const [name, setName] = useState("");
+  const [user, setUser] = useState("");
+  const [email, setMail] = useState("");
+  const [password, setPassword] = useState("");
+  const [alert, setAlert] = useState({});
+
   const [show, setShow] = useState(false);
 
-  const [mail, setMail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleRegister = () => {
-    if (name == "Fran") {
-      setShow(true);
-    } else {
-      setShow(false);
-    }
-    console.log(password);
-    console.log(mail);
-    if (mail == "algo" && password == "algo") {
-      navigation.navigate("RegisterSuccessful");
-    }
+  const URL = "https://quickly-a.herokuapp.com/api/client";
+  const data = {
+    user,
+    email,
+    password,
   };
+
+  const handleRegisterUser = () => {
+    if (user.length <= 2) {
+      setAlert({
+        msg: "El nombre es obligatorio!",
+        error: true,
+      });
+      return;
+    }
+
+    setShow(true);
+    setAlert({});
+  };
+
+  const handleRegisterEmailAndPw = async () => {
+    // Validations
+    if (password.length < 6) {
+      setAlert({
+        msg: "La contraseña es muy corta, agrega al menos 6 caracteres!",
+        error: true,
+      });
+      return;
+    }
+
+    if (email.length < 6) {
+      setAlert({
+        msg: "El email es incorrecto!",
+        error: true,
+      });
+      return;
+    }
+
+    // Request API
+    try {
+      let response = await fetch(URL, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      console.log(response.text());
+    } catch (error) {
+      console.log(error);
+    }
+
+    // navigation.navigate("RegisterSuccessful");
+  };
+
+  const { msg } = alert;
 
   return (
     <ImageBackground
@@ -50,7 +95,7 @@ const Register = ({ navigation }) => {
             <View style={styles.directionTextLogo}>
               <View>
                 <Text style={styles.textHello}>¡Hola</Text>
-                <Text style={styles.textName}>{name}!</Text>
+                <Text style={styles.textName}>{user}!</Text>
               </View>
               <Image
                 source={require("../../../../../assets/ClockRegister.png")}
@@ -66,12 +111,14 @@ const Register = ({ navigation }) => {
                 para completar el registro...
               </Text>
             </View>
+            {msg && <Alert alert={alert} />}
             <View style={styles.marginButtonPost}>
-              <Text style={styles.textNameInput}>Mail</Text>
+              <Text style={styles.textNameInput}>Email</Text>
               <TextInput
                 style={styles.inputName}
                 mode="outlined"
-                placeholder="Ingresa tu Mail"
+                placeholder="Ingresa tu Email"
+                value={email}
                 onChangeText={(email) => setMail(email)}
               ></TextInput>
               <Text style={styles.textPasswordInput}>Contraseña</Text>
@@ -79,6 +126,7 @@ const Register = ({ navigation }) => {
                 style={styles.inputName}
                 mode="outlined"
                 placeholder="Ingresa tu Contraseña"
+                value={password}
                 onChangeText={(pw) => setPassword(pw)}
               ></TextInput>
             </View>
@@ -86,7 +134,7 @@ const Register = ({ navigation }) => {
               style={[styles.marginButtonRegister, globalStyles.normalButton]}
             >
               <TouchableHighlight
-                onPress={handleRegister}
+                onPress={handleRegisterEmailAndPw}
                 style={globalStyles.button}
               >
                 <Text style={styles.textButton}>Registrar</Text>
@@ -107,17 +155,19 @@ const Register = ({ navigation }) => {
                 ¿Cómo quieres que te llamemos?
               </Text>
             </View>
+            {msg && <Alert alert={alert} />}
             <View style={styles.marginInput}>
               <TextInput
                 style={styles.inputName}
                 mode="outlined"
                 placeholder="Ingresa tu nombre"
-                onChangeText={(text) => setName(text)}
+                value={user}
+                onChangeText={(user) => setUser(user)}
               />
             </View>
             <View style={[styles.marginButton, globalStyles.normalButton]}>
               <TouchableHighlight
-                onPress={handleRegister}
+                onPress={handleRegisterUser}
                 style={globalStyles.button}
               >
                 <Text style={styles.textButton}>Registrar</Text>
