@@ -1,56 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Button, FlatList, Alert } from "react-native";
-import RNPickerSelect from "react-native-picker-select";
+/* import RNPickerSelect from "react-native-picker-select"; */
 import Calendar from "../Calendar/Calendar";
-import { Link } from "react-router-native";
+import axios from "axios";
 import globalStyles from "../../globalStyles/globalStyles";
-
-const categories = [
-  { key: 1, label: "Dermatología", value: "Dermatología" },
-  { key: 2, label: "Peluquería", value: "Peluquería" },
-  { key: 3, label: "Traumatología", value: "Traumatología" },
-];
-
-const usuarios = [
-  {
-    key: 1,
-    label: "Jorge",
-    value: "Dermatología",
-  },
-  {
-    key: 2,
-    label: "Raul",
-    value: "Peluquería",
-  },
-  {
-    key: 3,
-    label: "Luz",
-    value: "Traumatología",
-  },
-  {
-    key: 4,
-    label: "Martina",
-    value: "Peluquería",
-  },
-];
+import { Picker } from "@react-native-picker/picker";
 
 const FilterBar = ({ navigation }) => {
   const [category, setCategories] = useState("");
   const [provider, setProvider] = useState("");
-  const [data, setData] = useState([]);
+  const [usuarios, setUsuarios] = useState();
+  const [data, setData] = useState();
 
-  function filter() {
-    const dataFiltered = usuarios.filter((el) =>
-      el.category.includes(category)
-    );
-    setData(dataFiltered);
-  }
+  useEffect(() => {
+    axios.get("https://quickly-a.herokuapp.com/api/service").then((res) => {
+      setData(res.data.payload.map((el) => el.category));
+    });
+  }, []);
 
-  const placeholder = {
-    label: "Selecciona de la lista",
-    value: null,
-    color: "#9EA0A4",
-  };
+  useEffect(() => {
+    axios.get("https://quickly-a.herokuapp.com/api/provider").then((res) => {
+      setUsuarios(res.data.payload);
+    });
+    console.log(usuarios, "esto es usuarios");
+  }, []);
+
+  const categFiltered = data?.filter((item, index) => {
+    return data.indexOf(item) === index;
+  });
 
   const showAlert = () =>
     Alert.alert(
@@ -79,54 +56,40 @@ const FilterBar = ({ navigation }) => {
 
   return (
     <View>
-      <Text>Selecciona una categoría:</Text>
-      <RNPickerSelect
-        onValueChange={(value) => setCategories(value)}
-        items={categories}
-        placeholder={placeholder}
-      />
-      <Text>Selecciona un profesional:</Text>
-      <RNPickerSelect
-        onValueChange={(value) => setProvider(value)}
-        placeholder={placeholder}
-        items={usuarios}
-      />
+      <Picker
+        selectedValue={category}
+        onValueChange={(itemValue, itemIndex) => setCategories(itemValue)}
+      >
+        <Picker.Item label={"Selecciona una categoría"} value={null} />
+        {categFiltered?.map((el, index) => (
+          <Picker.Item label={el} value={el} key={index} />
+        ))}
+      </Picker>
+      <Picker
+        selectedValue={provider}
+        onValueChange={(itemValue, itemIndex) => setProvider(itemValue)}
+      >
+        <Picker.Item label={"Selecciona un especialista"} value={undefined} />
+        {!category ? (
+          <Picker.Item label={""} value={null} />
+        ) : (
+          usuarios
+            ?.filter((el) =>
+              el.Services.map((a) => a.category).includes(category)
+            )
+            .map((el, index) => (
+              <Picker.Item label={el.user} value={el.user} key={index} />
+            ))
+        )}
+      </Picker>
+      <Text>{provider}</Text>
       <Text>Selecciona la fecha:</Text>
-      {/*   <RNPickerSelect
-        placeholder={placeholder}
-        onValueChange={undefined}
-        items={usuarios}
-      /> */}
       <Calendar />
-      <Text>Elije un horario disponible:</Text>
-      <RNPickerSelect
-        onValueChange={(value) => setProvider(value)}
-        placeholder={placeholder}
-        items={usuarios}
-      />
       <View style={[globalStyles.button, globalStyles.normalButton]}>
         <Text onPress={showAlert} style={globalStyles.textButton}>
           + Guardar turno
         </Text>
-       {/*  <Button title="Show alert" onPress={showAlert} /> */}
       </View>
-      <FlatList
-        data={data}
-        renderItem={({ item }) => (
-          <Text
-            style={{
-              backgroundColor: "red",
-              height: 35,
-              textAlign: "center",
-              marginBottom: 5,
-              marginTop: 5,
-              alignItems: "center",
-            }}
-          >
-            {item.name} {item.category}
-          </Text>
-        )}
-      />
     </View>
   );
 };
