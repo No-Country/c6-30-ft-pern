@@ -1,5 +1,5 @@
 let User = require('../../sequelize/models/User')
-let DBError = require('../../utils/DBError')
+let DBError = require("../../utils/DBError")
 async function findEntry(user) {
     try {
         let data = await User.findOne({ where: { user } })
