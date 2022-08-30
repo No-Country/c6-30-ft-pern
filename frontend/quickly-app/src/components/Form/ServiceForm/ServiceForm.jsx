@@ -55,7 +55,7 @@ export const ServiceForm = ({navigation}) => {
       .min(0, "Debe ser un número mayor a 0"),
   });
 
-  const onSubmit = (values, {resetForm}) => {
+  const onSubmit = async (values, {resetForm}) => {
     const sendValues = {
       user: authData.user,
       name: values.name,
@@ -72,7 +72,7 @@ export const ServiceForm = ({navigation}) => {
         sunday: values.sunday ? arrayDate(values.from, values.to) : null,
       },
     };
-    fetch("https://quickly-a.herokuapp.com/api/service", {
+    await fetch("https://quickly-a.herokuapp.com/api/service", {
       method: 'POST',
       body: JSON.stringify(sendValues),
       headers:{
@@ -83,7 +83,7 @@ export const ServiceForm = ({navigation}) => {
     .then(data => {
       if (data.success) {
         console.log(data.message);
-        navigation.navigate('HomeSupplier')
+        navigation.goBack();
       }
     })
     .catch(error => console.log(error))

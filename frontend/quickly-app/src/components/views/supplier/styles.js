@@ -3,8 +3,8 @@ import { theme } from "../../../globalStyles/theme";
 
 export const styles = StyleSheet.create({
   container: {
-    justifyContent: "space-between",
     height: "100%",
+    backgroundColor: theme.colors.background,
   },
   imgContainer: {
     justifyContent: "center",

@@ -17,11 +17,11 @@ export default function HomeSupplier({ navigation }) {
   useEffect(() => {
     getServices("");
     setIsLoading(false);
-  }, [services])
+  }, []);
 
-  const getServices = (path) => {
+  const getServices = async (path) => {
     setIsLoading(true);
-    fetch(`https://quickly-a.herokuapp.com/api/provider?user=${authData?.user}${path}`)
+    await fetch(`https://quickly-a.herokuapp.com/api/provider?user=${authData?.user}${path}`)
       .then(res => res.json())
       .then(data => {
         listServices(data.payload[0].Services);
@@ -42,7 +42,7 @@ export default function HomeSupplier({ navigation }) {
     undefined,
     [
       {
-        text: "Accept",
+        text: "Aceptar",
         onPress: () => {
             fetch("https://quickly-a.herokuapp.com/api/service", {
                 method: "DELETE",
@@ -55,14 +55,17 @@ export default function HomeSupplier({ navigation }) {
                 }
             })
             .then(res => res.json())
-            .then(data => console.log(data))
+            .then(data => {
+              getServices("")
+              setIsLoading(false);
+            })
             .catch(err=>console.log(err))
             Alert.alert("Servicio eliminado!")
         },
         style: "cancel",
       },
       {
-        text: "Cancel",
+        text: "Cancelar",
         onPress: () => console.log("Cancel Pressed"),
         style: "cancel",
       },
@@ -77,7 +80,7 @@ export default function HomeSupplier({ navigation }) {
   }
 
   return (
-    <ScrollView >
+    <ScrollView style={styles.container}>
       <View style={[globalStyles.container, styles.container]}>
         <View style={styles.imgContainer}>
           <Image source={require('../../../../assets/logo-quickly.png')} style={styles.imgLogo}/>
@@ -85,7 +88,7 @@ export default function HomeSupplier({ navigation }) {
         <View style={[globalStyles.cardOutlineContainer, styles.cardContainer]}>
           <Text style={[globalStyles.title, styles.title]}>{services?.length > 1 ? "Mis servicios" : "Mi servicio"}</Text>
           {
-            services !== [] ? (isLoading ? <><Text>Cargando...</Text></> : (
+            services?.length !== 0 ? (isLoading ? <><Text>Cargando...</Text></> : (
               <>
                 {
                   services.map(service => <CardService key={service.id} data={service} handleDelete={handleDeleteService} />)
