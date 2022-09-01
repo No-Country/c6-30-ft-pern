@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "../../../../hooks/useAuth";
 import {
   TouchableHighlight,
@@ -21,9 +21,15 @@ export const Login = ({ navigation }) => {
   let [user, setUser] = useState("");
   let [password, setPassword] = useState("");
 
+  const [check, setCheck] = useState(false);
+
   const [passwordVisible, setPasswordVisible] = useState(true);
 
   const auth = useAuth();
+
+  const handleCheckBox = () => {
+    setCheck(!check);
+  };
 
   const handleLogin = async () => {
     if ([user, password].includes("")) {
@@ -88,7 +94,11 @@ export const Login = ({ navigation }) => {
             />
           </View>
           <View style={[style.marginY, style.direction]}>
-            <CheckBox children={"Recordame"} />
+            <CheckBox
+              children={"Recordame"}
+              value={check}
+              handleChange={handleCheckBox}
+            />
             <TouchableHighlight
               onPress={() => navigation.navigate("ForgetPassword")}
             >
