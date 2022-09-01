@@ -1,33 +1,18 @@
-// Example user logins
-import { Text, View, Button } from "react-native";
-import { Link } from "react-router-native";
+import { StatusBar, Text, TouchableHighlight, View, } from "react-native";
+// Styles
 import globalStyles from "../../../../globalStyles/globalStyles";
-import { useNavigation } from "@react-navigation/native";
-import styles from "./styles";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { theme } from "../../../../globalStyles/theme";
 
-const HomeUser = () => {
-  const navigation = useNavigation();
 
+const HomeUser = ({navigation}) => {
   return (
     <View style={globalStyles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={theme.colors.secondary}/>
       <Text>Foto de perfil</Text>
       <Text>Nombre y Apellido</Text>
-      <Text></Text>
-      <Link to="/turns">
-        <Text>Turnos disponibles</Text>
-      </Link>
-      <Text></Text>
-      <Link to="/notifications">
-        <Text>Notificaciones</Text>
-      </Link>
-      <Text></Text>
-      <Link to="/filterBar">
-        <Text>Agendar Turnos</Text>
-      </Link>
-      <TouchableOpacity onPress={() => navigation.navigate("Notificaciones")}>
-        <Text>Ir a notificationes</Text>
-      </TouchableOpacity>
+      <TouchableHighlight onPress={() => navigation.navigate('Turns')}>
+          <Text>Pedir turno</Text>
+      </TouchableHighlight>
     </View>
   );
 };

@@ -9,6 +9,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 
 const routes = require('./routes/index.js');
+const swagger = require('./swagger/index.js')
 const app = express();
 
 
@@ -33,6 +34,7 @@ app.use((req, res, next) => {
   next();
 }); 
 app.use("/api",routes)
+app.use('/', swagger)
 app.use((err, req, res, next) => {
     const status = err.status || 500;
     const message = err.message || err;

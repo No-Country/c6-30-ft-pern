@@ -26,7 +26,15 @@ const Register = ({ navigation }) => {
 
   const handleRegisterUser = () => {
     if (user.length <= 2) {
-      Alert.alert("Caracteres insuficientes");
+      Alert.alert(
+        "Nombre incorrecto",
+        "El nombre ingresado tiene los caracteres insuficientes",
+        [
+          {
+            text: "Entiendo",
+          },
+        ]
+      );
       return;
     }
 
@@ -34,13 +42,34 @@ const Register = ({ navigation }) => {
   };
 
   const handleRegisterEmailAndPw = async () => {
-    if (password.length < 6) {
-      Alert.alert("¡La contraseña es muy corta!");
+    if (password.length < 6 && email.length < 8) {
+      Alert.alert(
+        "Datos incorrectos",
+        "La contraseña y el email son invalidos",
+        [
+          {
+            text: "Entiendo",
+          },
+        ]
+      );
       return;
-    }
-
-    if (email.length < 8) {
-      Alert.alert("¡El email es invalido!");
+    } else if (password.length < 6) {
+      Alert.alert(
+        "Contraseña incorrecta",
+        "La contraseña ingresada tiene pocos caracteres",
+        [
+          {
+            text: "Entiendo",
+          },
+        ]
+      );
+      return;
+    } else if (email.length < 8) {
+      Alert.alert("Mail incorrecto", "El email ingresado es invalido", [
+        {
+          text: "Entiendo",
+        },
+      ]);
       return;
     }
 
@@ -64,7 +93,8 @@ const Register = ({ navigation }) => {
         setMail("");
         setPassword("");
       } catch (error) {
-        console.log(error);
+        console.log(error.message);
+        throw error;
       }
     } else if (rol === "provider") {
       try {
@@ -86,7 +116,7 @@ const Register = ({ navigation }) => {
         setMail("");
         setPassword("");
       } catch (error) {
-        console.log(error);
+        console.log(error.message);
       }
     }
     navigation.navigate("RegisterSuccessful");

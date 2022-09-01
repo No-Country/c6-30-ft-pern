@@ -1,0 +1,700 @@
+openapi: 3.0.0
+info:
+  title: Quickly
+  version: 1.0.0
+servers:
+  - url: http://quickly-a.herokuapp.com
+tags:
+  - name: Backend
+    description: Backend for Quickly
+  - name: Backend > Auth
+  - name: Backend > Client
+    description: Handles the creation, retrieval, updating and deleting of Client users
+  - name: Backend > Provider
+  - name: Backend > Service
+  - name: Backend > Order
+paths:
+  /api/auth/login:
+    post:
+      tags:
+        - Backend > Auth
+      summary: Login Provider
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                user: Provider
+                password: '123456'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/Token'
+  /api/auth/refresh:
+    post:
+      tags:
+        - Backend > Auth
+      summary: Refresh
+      description: |-
+        To refresh the tokens, you have to provide two things:
+
+        1.  Access token at authorization header with Bearer signal
+        2.  refreshToken property at the body
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                refreshToken: >-
+                  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiQ2FsbGVyIiwiYWNjZXNzIjoiY2xpZW50IiwiaXNzIjoicXVpY2tseS5jb20vYXV0aCIsImF1ZCI6InF1aWNreS5jb20vZnJvbnQiLCJleHAiOjE2NjM4OTU5ODgsImlhdCI6MTY2MTMwMzk4OH0.jkPgSM0welhvcP4v2HUxY7Hoc8rS-IJahjlyteMYp48
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/Token'
+  /api/client:
+    post:
+      tags:
+        - Backend > Client
+      summary: New Client
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                user: Caller
+                email: jb.barrientos@gmail.com
+                password: '123456'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: "#components/schemas/Message"
+    get:
+      tags:
+        - Backend > Client
+      summary: Get Clients
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: "#components/schemas/ClientPayload"
+    delete:
+      tags:
+        - Backend > Client
+      summary: Delete Client
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: "#components/schemas/Message"
+    put:
+      tags:
+        - Backend > Client
+      summary: Update Client
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                user: Caller
+                email: jb.b
+                firstName: firstName
+                lastName: lastName
+                city: Buenos Aires
+                state: Buenos Aires
+                country: Argentina
+                img: https://via.placeholder.com/35
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: "#components/schemas/Message"
+  /api/client/:id:
+    get:
+      tags:
+        - Backend > Client
+      summary: Get Client
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: "#components/schemas/ClientMessage"
+  /api/provider:
+    post:
+      tags:
+        - Backend > Provider
+      summary: New Provider
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                user: Provider
+                email: jb.b@b.com
+                password: '123456'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: "#components/schemas/Message"
+    get:
+      tags:
+        - Backend > Provider
+      summary: Get Providers
+      parameters:
+        - name: user
+          in: query
+          schema:
+            type: string
+          example: Provider
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: '#components/schemas/ProviderPayload'
+    delete:
+      tags:
+        - Backend > Provider
+      summary: Delete Provider
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: "#components/schemas/Message"
+    put:
+      tags:
+        - Backend > Provider
+      summary: Update Provider
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                user: Provider
+                email: jb.b
+                name: firstName
+                address: CalleFalsa123
+                city: Buenos Aires
+                state: Buenos Aires
+                country: Argentina
+                img: https://via.placeholder.com/35
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: "#components/schemas/Message"
+  /api/provider/:id:
+    get:
+      tags:
+        - Backend > Provider
+      summary: Get Provider
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: "#components/schemas/ProviderMessage"
+  /api/service/:id:
+    get:
+      tags:
+        - Backend > Service
+      summary: Get One Service
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: '#components/schemas/ServiceMessage'
+  /api/service/:
+    get:
+      tags:
+        - Backend > Service
+      summary: Get all services
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: "#components/schemas/ServicePayload"
+  /api/service:
+    post:
+      tags:
+        - Backend > Service
+      summary: New Service
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                user: Provider
+                name: peluqueria canina234
+                category: Mascotas
+                value: 20
+                date:
+                  monday:
+                    - '12:30'
+                    - '01:30'
+                    - '02:20'
+                    - '03:30'
+                    - '04:30'
+                    - '05:20'
+                    - '06:30'
+                    - '07:30'
+                    - '8:20'
+                  tuesday:
+                    - '12:30'
+                    - '01:30'
+                    - '02:20'
+                    - '03:30'
+                    - '04:30'
+                    - '05:20'
+                    - '06:30'
+                    - '07:30'
+                    - '8:20'
+                  wednesday:
+                    - '12:30'
+                    - '01:30'
+                    - '02:20'
+                    - '03:30'
+                    - '04:30'
+                    - '05:20'
+                    - '06:30'
+                    - '07:30'
+                    - '8:20'
+                  thursday:
+                    - '12:30'
+                    - '01:30'
+                    - '02:20'
+                    - '03:30'
+                    - '04:30'
+                    - '05:20'
+                    - '06:30'
+                    - '07:30'
+                    - '8:20'
+                  friday:
+                    - '12:30'
+                    - '01:30'
+                    - '02:20'
+                    - '03:30'
+                    - '04:30'
+                    - '05:20'
+                    - '06:30'
+                    - '07:30'
+                    - '8:20'
+                  saturday:
+                    - '12:30'
+                    - '01:30'
+                    - '02:20'
+                    - '03:30'
+                    - '04:30'
+                    - '05:20'
+                    - '06:30'
+                    - '07:30'
+                    - '8:20'
+                description: porfavor pedir turno con un dia de anticipacion
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: "#components/schemas/Message"
+    delete:
+      tags:
+        - Backend > Service
+      summary: Delete Service
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: "#components/schemas/Message"
+  /api/order/:id:
+    get:
+      tags:
+        - Backend > Order
+      summary: Get Order
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: "#components/schemas/OrderMessage"
+  /api/order/:
+    post:
+      tags:
+        - Backend > Order
+      summary: New Order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                client: Caller
+                serviceId: c5dd0d71-52ba-459c-9bbf-40a948daf4e5
+                date: Mon Aug 29 2022 12:30:00 GMT-0300 (hora estándar de Argentina)
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: "#components/schemas/Message"
+    put:
+      tags:
+        - Backend > Order
+      summary: Update Order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                id: 7c45f11c-7af1-414c-8650-65fa716aed61
+                status: noshow
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: "#components/schemas/Message"
+  /api/order:
+    delete:
+      tags:
+        - Backend > Order
+      summary: Delete Order
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: 
+              schema:
+                $ref: "#components/schemas/Message"
+components:
+  securitySchemes:
+    noauthAuth:
+      type: http
+      scheme: noauth
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Date:
+      type: object
+      properties:
+        monday:
+          type: array
+          items:
+            type: string
+        tuesday: 
+          type: array
+          items:
+            type: string
+        wednesday:
+          type: array
+          items:
+            type: string
+        thursday:
+          type: array
+          items:
+            type: string
+        friday:
+          type: array
+          items:
+            type: string
+        saturday:
+          type: array
+          items:
+            type: string
+        sunday: 
+          type: array
+          items:
+            type: string
+    Message:
+      type: object
+      properties:
+        success: 
+          type: boolean
+          description: Operation success or fail
+        message:
+          type: string
+          description: A message describing reasons for success or failure.
+    Client:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Client ID
+        user:
+          type: string
+          description: Client's username
+        email:
+          type: string
+          description: Email address
+        firstName:
+          type: string
+          description: First Name
+        lastName: 
+          type: string
+          description: Last name
+        city: 
+          type: string
+          description: City name
+        state:
+          type: string
+          description: State name
+        country: 
+          type: string
+          description: Country name
+        img:
+          type: string
+          description: Avatar url
+        createdAt:
+          type: string
+          description: Date to string
+        updatedAt:
+          type: string
+          description: Date to string
+        Orders:
+          type: array
+          items:
+            $ref: '#components/schemas/Order'
+    ClientMessage:
+      type: object
+      properties:
+        success:
+          type: boolean
+        payload:
+          $ref: "#components/schemas/Client"
+    ClientPayload:
+      type: object
+      properties:
+        success:
+          type: boolean
+        payload:
+          type: array
+          items:
+            $ref: "#components/schemas/Client"
+    Provider:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Provider ID
+        user:
+          type: string
+          description: Provider's username
+        email:
+          type: string
+          description: Email address
+        name:
+          type: string
+          description: Provider's name
+        address: 
+          type: string
+          description: Provider's address
+        city: 
+          type: string
+          description: City name
+        state:
+          type: string
+          description: State name
+        country: 
+          type: string
+          description: Country name
+        img:
+          type: string
+          description: Avatar url
+        createdAt:
+          type: string
+          description: Date to string
+        updatedAt:
+          type: string
+          description: Date to string
+        Services:
+          type: array
+          items:
+            $ref: '#components/schemas/Service'
+    ProviderMessage:
+      type: object
+      properties:
+        success:
+          type: boolean
+        payload:
+          $ref: "#components/schemas/Provider"
+    ProviderPayload:
+      type: object
+      properties:
+        success:
+          type: boolean
+        payload:
+          type: array
+          items:
+            $ref: "#components/schemas/Provider"
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID
+        status: 
+          type: string
+          description: Order status
+        value: 
+          type: number
+          description: Order pricing
+        date:
+          type: string
+          description: JS Date object to string
+        description:
+          type: string
+          description: Requested service description
+        createdAt:
+          type: string
+          description: Date object
+        updatedAt: 
+          type: string
+          description: Date object
+        ServiceId:
+          type: string
+          description: Requested service UUID
+        client:
+          type: string
+          description: Client's username
+        provider:
+          type: string
+          description: Provider's username
+    OrderMessage:
+      type: object
+      properties:
+        success: 
+          type: boolean
+        payload:
+          $ref: '#components/schemas/Order'
+    Service: 
+      type: object
+      properties:
+        id:
+          type: string
+          description: Service's UUID
+        category: 
+          type: string
+          description: Service category
+        name:
+          type: string
+          description: Service name
+        value:
+          type: number
+          description: Pricing
+        description:
+          type: string
+          description: Service description
+        createdAt:
+          type: string
+          description: Date object
+        updatedAt: 
+          type: string
+          description: Date object
+        provider:
+          type: string
+          description: Provider's username
+        Date:
+          type: array
+          items:
+            $ref: "#components/schemas/Date"
+        Orders:
+          type: array
+          items:
+            $ref: '#components/schemas/Order'        
+    ServiceMessage:
+      type: object
+      properties:
+        success:
+          type: boolean
+        payload:
+          $ref: '#components/schemas/Service'
+    ServicePayload:
+      type: object
+      properties:
+        success: 
+          type: boolean
+        payload:
+          type: array
+          items:
+            $ref: "#components/schemas/Service"
+    Services:
+      type: object
+      properties:
+        success: 
+          type: boolean
+          description: Operation success or failure
+        payload: 
+          type: array
+          items:
+            $ref: "#components/schemas/Order"
+    Token: 
+      type: object
+      properties: 
+        user: 
+          type: string
+          description: Requested username login
+        access: 
+          type: string
+          description: User's access level
+        tokens: 
+          type: object
+          properties:
+            accessToken:
+              type: string
+              description: Access token with username and access level
+            refreshToken:
+              type: string
+              description: Refresh token

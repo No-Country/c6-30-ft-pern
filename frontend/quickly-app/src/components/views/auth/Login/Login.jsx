@@ -27,11 +27,21 @@ export const Login = ({ navigation }) => {
 
   const handleLogin = async () => {
     if ([user, password].includes("")) {
-      Alert.alert("Los datos ingresados son incorrectos");
+      Alert.alert(
+        "Datos incorrectos",
+        "Proba ingresando las credenciales correctas",
+        [
+          {
+            text: "Entiendo",
+          },
+        ]
+      );
       return;
     }
 
     auth.signIn(user, password);
+    setUser("");
+    setPassword("");
   };
 
   return (

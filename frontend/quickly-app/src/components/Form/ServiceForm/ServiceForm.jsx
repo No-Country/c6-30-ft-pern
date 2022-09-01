@@ -9,13 +9,18 @@ import { CheckBox } from "../../CheckBox/CheckBox";
 // Styles
 import globalStyles from "../../../globalStyles/globalStyles";
 import { styles } from "./styles";
-
+// Hooks
+import { useAuth } from "../../../hooks/useAuth";
 // Utils
 import { arrayDate } from "../../../utils/arrayDate";
 
 export const ServiceForm = ({navigation}) => {
+
+  const { authData } = useAuth();
+
   const initialValues = {
     name: "",
+    category: "",
     value: "",
     description: "",
     monday: false,
@@ -35,27 +40,28 @@ export const ServiceForm = ({navigation}) => {
     name: Yup.string()
       .min(6, "*La cantidad mínima de caracteres es 6.")
       .required(required),
+    category: Yup.string().required(required),
     value: Yup.string(),
     description: Yup.string().required(required),
     from: Yup.number()
       .integer("*Debe ser un número entero")
       .required(required)
       .max(23, "*Debe ser un número menor a 23")
-      .min(0, "Debe ser un número mayor a 0"),
+      .min(0, "Debe ser un número mayor o igual a 0"),
     to: Yup.number()
       .integer("*Debe ser un número entero")
       .required(required)
-      .max(23, "*Debe ser un número menor a 23")
+      .max(23, "*Debe ser un número menor a 24")
       .min(0, "Debe ser un número mayor a 0"),
   });
 
-  const onSubmit = (values, {resetForm}) => {
+  const onSubmit = async (values, {resetForm}) => {
     const sendValues = {
-      user: "Provider",
+      user: authData.user,
       name: values.name,
+      category: values.category,
       value: values.value,
       description: values.description,
-      category: "Mascotas",
       date: {
         monday: values.monday ? arrayDate(values.from, values.to) : null,
         tuesday: values.tuesday ? arrayDate(values.from, values.to) : null,
@@ -66,7 +72,7 @@ export const ServiceForm = ({navigation}) => {
         sunday: values.sunday ? arrayDate(values.from, values.to) : null,
       },
     };
-    fetch("https://quickly-a.herokuapp.com/api/service", {
+    await fetch("https://quickly-a.herokuapp.com/api/service", {
       method: 'POST',
       body: JSON.stringify(sendValues),
       headers:{
@@ -76,10 +82,10 @@ export const ServiceForm = ({navigation}) => {
     .then(res => res.json())
     .then(data => {
       if (data.success) {
-        console.log(data.message);
-        navigation.navigate('HomeSupplier')
+        navigation.navigate("HomeSupplier", {'newService': 'created'});
       }
-    });
+    })
+    .catch(error => console.log(error))
     resetForm();
   };
 
@@ -113,6 +119,22 @@ export const ServiceForm = ({navigation}) => {
             />
             {errors.name && touched.name && (
               <Text style={globalStyles.textError}>{errors.name}</Text>
+            )}
+          </View>
+          <View style={globalStyles.inputContainer}>
+            <Text style={globalStyles.label}>Categoría</Text>
+            <TextInput
+              style={
+                errors.category && touched.category
+                  ? [globalStyles.inputError, globalStyles.input]
+                  : globalStyles.input
+              }
+              onChangeText={handleChange("category")}
+              onBlur={handleBlur("category")}
+              value={values?.category}
+            />
+            {errors.category && touched.category && (
+              <Text style={globalStyles.textError}>{errors.category}</Text>
             )}
           </View>
           <View style={globalStyles.inputContainer}>

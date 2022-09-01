@@ -1,30 +1,37 @@
 import { useEffect, useState } from "react";
-import { TouchableWithoutFeedback, ScrollView, Text, View, Image, StatusBar, Alert } from "react-native";
-
+import { TouchableWithoutFeedback, ScrollView, Text, View, Image, Alert, StatusBar } from "react-native";
+// Components
+import { CardService } from "../../CardService/CardService";
+// Hooks
+import { useAuth } from "../../../hooks/useAuth";
 // Styles
 import globalStyles from "../../../globalStyles/globalStyles";
-import { theme } from "../../../globalStyles/theme";
-import { CardService } from "../../CardService/CardService";
 import { styles } from "./styles";
+import { theme } from "../../../globalStyles/theme";
 
-export default function HomeSupplier({ navigation }) {
+export default function HomeSupplier({ navigation, route }) {
 
+  const { authData } = useAuth();
   const [services, setServices] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     getServices("");
-  }, [services])
+  }, [route]);
 
-  const getServices = (path) => {
-    fetch('https://quickly-a.herokuapp.com/api/provider?user=Provider'+path)
+  const getServices = async (path) => {
+    setIsLoading(true);
+    await fetch(`https://quickly-a.herokuapp.com/api/provider?user=${authData?.user}${path}`)
       .then(res => res.json())
       .then(data => {
-        listServices(data.payload.Services);
-      });
+        listServices(data.payload[0].Services);
+      })
+      .catch(error => console.log(error));
   }
 
   const listServices = (data) => {
     setServices(data);
+    setIsLoading(false);
   }
 
   const handleAddService = () => {
@@ -36,22 +43,30 @@ export default function HomeSupplier({ navigation }) {
     undefined,
     [
       {
-        text: "Accept",
+        text: "Aceptar",
         onPress: () => {
-            console.log(id)
             fetch("https://quickly-a.herokuapp.com/api/service", {
-                method: 'DELETE',
-                body: JSON.stringify(id),
-                // headers
+                method: "DELETE",
+                body: JSON.stringify({
+                  id: id,
+                }),
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + authData.tokens.accessToken,
+                }
             })
             .then(res => res.json())
-            .then(data => console.log(data));
+            .then(data => {
+              getServices("")
+              setIsLoading(false);
+            })
+            .catch(err=>console.log(err))
             Alert.alert("Servicio eliminado!")
         },
         style: "cancel",
       },
       {
-        text: "Cancel",
+        text: "Cancelar",
         onPress: () => console.log("Cancel Pressed"),
         style: "cancel",
       },
@@ -66,21 +81,22 @@ export default function HomeSupplier({ navigation }) {
   }
 
   return (
-    <ScrollView >
+    <ScrollView style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={theme.colors.secondary}/>
       <View style={[globalStyles.container, styles.container]}>
         <View style={styles.imgContainer}>
           <Image source={require('../../../../assets/logo-quickly.png')} style={styles.imgLogo}/>
         </View>
-        <View style={globalStyles.cardContainer}>
+        <View style={[globalStyles.cardOutlineContainer, styles.cardContainer]}>
           <Text style={[globalStyles.title, styles.title]}>{services?.length > 1 ? "Mis servicios" : "Mi servicio"}</Text>
           {
-            services ? (
+            services?.length !== 0 ? (isLoading ? <><Text>Cargando...</Text></> : (
               <>
                 {
                   services.map(service => <CardService key={service.id} data={service} handleDelete={handleDeleteService} />)
                 }
               </>
-            ) : (
+            )) : (
               <>
                 <Text>Aún no tienes creado ningún servicio</Text>
               </>
@@ -89,7 +105,7 @@ export default function HomeSupplier({ navigation }) {
           
         </View>
         <TouchableWithoutFeedback onPress={handleAddService}>
-          <View style={[globalStyles.button, globalStyles.normalButton]}>
+          <View style={[globalStyles.button, globalStyles.normalButton, styles.button]}>
             <Text style={globalStyles.textButton}>+ Crear servicio</Text>
           </View>
         </TouchableWithoutFeedback>

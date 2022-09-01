@@ -77,7 +77,16 @@ const globalStyles = StyleSheet.create({
   cardContainer: {
     backgroundColor: theme.colors.bgCard,
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 20,
+    overflow: "hidden",
+  },
+  cardOutlineContainer: {
+    backgroundColor: theme.colors.background,
+    padding: 20,
+    borderRadius: 20,
+    borderStyle: "solid",
+    borderColor: theme.colors.secondary,
+    borderWidth: 3,
     overflow: "hidden",
   },
 });

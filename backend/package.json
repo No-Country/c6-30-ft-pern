@@ -25,7 +25,8 @@
     "pg": "^8.7.3",
     "sequelize": "^6.21.3",
     "swagger-jsdoc": "^6.2.1",
-    "swagger-ui-express": "^4.5.0"
+    "swagger-ui-express": "^4.5.0",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.18.9",

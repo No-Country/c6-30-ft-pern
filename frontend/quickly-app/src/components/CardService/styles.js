@@ -5,9 +5,9 @@ export const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     justifyContent: "space-between",
-    backgroundColor: theme.colors.background,
-    borderRadius: 5,
-    padding: 10,
+    backgroundColor: theme.colors.bgCard,
+    borderRadius: 20,
+    padding: 20,
     marginVertical: 5,
     overflow: "hidden",
   },
@@ -22,5 +22,25 @@ export const styles = StyleSheet.create({
   },
   text: {
     marginHorizontal: 5,
+    marginVertical: 3,
+  },
+  title: {
+    textTransform: "uppercase",
+    fontSize: theme.fontSize.headline,
+  },
+  button: {
+    padding: 3,
+  },
+  textLabel: {
+    backgroundColor: theme.colors.background,
+    padding: 5,
+    borderRadius: 10,
+    borderStyle: "solid",
+    borderColor: theme.colors.secondary,
+    borderWidth: 1,
+    overflow: "hidden",
+  },
+  textSubtitle: {
+    fontSize: theme.fontSize.title,
   },
 });
