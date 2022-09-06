@@ -18,7 +18,7 @@ function orderCreateHandler(fetchOrders, checkIfAvailable, checkIfAssigned, dbOr
                 value,
                 status: "pending"
             })
-            await service.addOrder(order)
+            await service.addOrder(order.id)
             return res.send({ success: true, message: "Order successfully created." })
         } catch (error) {
             let { status, message } = errorManager(error)

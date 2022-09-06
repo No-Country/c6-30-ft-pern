@@ -6,6 +6,9 @@ const Order = sequelize.define("Order", {
 		defaultValue: DataTypes.UUIDV4,
 		primaryKey: true,
 		allowNull: false,
+		get() {
+			return this.getDataValue("id")
+		}
 	},
 	status: {
 		type: DataTypes.STRING,
