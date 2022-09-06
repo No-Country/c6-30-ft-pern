@@ -8,15 +8,18 @@ import globalStyles from "../../globalStyles/globalStyles";
 import { styles } from "./styles";
 
 const url = "https://quickly-a.herokuapp.com";
-
+const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
 const FilterBar = ({ navigation }) => {
-  const [category, setCategories] = useState("");
-  const [provider, setProvider] = useState();
-  const [usuarios, setUsuarios] = useState();
+  const [categories, setCategories] = useState([]);
+  const [category, setCategory] = useState(null);
+  const [provider, setProvider] = useState(null);
+  const [providers, setProviders] = useState([])
+  const [hours, setHours] = useState([])
   const [data, setData] = useState();
   const [time, setTime] = useState();
   const [date, setDate] = useState(new Date());
-  const [text, setText] = useState("Empty");
+  const [text, setText] = useState("Selecciona una fecha");
+  const [finalDate, setFinalDate] = useState(null)
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
 
@@ -26,27 +29,42 @@ const FilterBar = ({ navigation }) => {
     setShow(true);
     setMode(currentMode);
   };
+  const handleCategoryChange = (selectedService) => {
+    let filteredData = data.filter(k => k.category === selectedService)
+    setCategory(selectedService)
+    setProviders(filteredData)
+  }
+
+  const handleTimeChange = (selectedTime) => {
+    let [sHour, sMinutes] = selectedTime.split(":").map(k => Number(k))
+    let final = new Date(date)
+    final.setHours(sHour)
+    final.setMinutes(sMinutes)
+    final.setSeconds(0)
+    setFinalDate(final)
+    setTime(selectedTime)
+  }
 
   const onChange = (e, selectedDate) => {
-    const currentDate = selectedDate || date;
     setShow(Platform.OS === "ios");
-    setDate(currentDate);
-    /*  let tempDate = new Date(selectedDate); */
-    /* let [hours, minutes] = time.split(":"); */
-    let date =
-      selectedDate.getFullYear() +
-      "-" +
-      (selectedDate.getMonth() + 1 < 10
-        ? "0" + (selectedDate.getMonth() + 1)
-        : selectedDate.getMonth() + 1) +
-      "-" +
-      (selectedDate.getDate() < 10
-        ? "0" + selectedDate.getDate()
-        : selectedDate.getDate());
-    /*  hours,
-      minutes,
-      0 */
-    setText(date);
+    let dayOfTheWeek = days[selectedDate.getDay()]
+    let schedule = provider.Date[dayOfTheWeek]
+    let ordersDates = provider.Orders.map(k => new Date(k.date).toString())
+    let filteredSchedule = schedule.filter(k => {
+      let [sHour, sMinutes] = k.split(":").map(k => Number(k))
+      let compare = new Date(selectedDate)
+      compare.setHours(sHour)
+      compare.setMinutes(sMinutes)
+      compare.setSeconds(0)
+      return !ordersDates.includes(compare.toString())
+    })
+
+    let day = (`0${selectedDate.getDate()}`).slice(-2)
+    let month = (`0${selectedDate.getMonth() + 1 }`).slice(-2)
+    let year = selectedDate.getFullYear()
+    setDate(selectedDate);
+    setText(`${day}-${month}-${year}`)
+    setHours(filteredSchedule);
   };
 
   const showAlert = () =>
@@ -60,10 +78,9 @@ const FilterBar = ({ navigation }) => {
             try {
               const res = await axios.post(`${url}/api/order`, {
                 client: authData.user,
-                serviceId: provider,
-                date: `${text}T${time}`,
+                serviceId: provider.id,
+                date: finalDate,
               });
-              console.log(res.data, "data");
               Alert.alert("¡Turno agendado!", undefined, [
                 {
                   text: "Aceptar",
@@ -72,6 +89,7 @@ const FilterBar = ({ navigation }) => {
                 },
               ]);
             } catch (error) {
+              console.log(error.response.data)
               Alert.alert("Este horario ya fue seleccionado", undefined, [
                 {
                   text: "Aceptar",
@@ -98,32 +116,12 @@ const FilterBar = ({ navigation }) => {
 
   useEffect(() => {
     axios.get(`${url}/api/service`).then((res) => {
-      setData(res.data.payload);
-    });
-    axios.get(`${url}/api/provider`).then((res) => {
-      setUsuarios(res.data.payload);
+      let uniqueList = new Set(res.data.payload.map(k => k.category))
+      let categories = Array.from(uniqueList)
+      setData(res.data.payload)
+      setCategories(categories)
     });
   }, []);
-
-  const categFiltered = data
-    ?.map((el) => el.category)
-    .filter((item, index) => {
-      return data.map((el) => el.category).indexOf(item) === index;
-    });
-
-  /*   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const resp = await axios.post(`${url}/api/order`, {
-        client: authData.user,
-        serviceId: provider,
-        date: `${text}T${time}`,
-      });
-      console.log(resp.data, "Data de solicitud de turno");
-    } catch (error) {
-      console.log(error.resp, "Error al solicitar un turno");
-    }
-  } */
 
   return (
     <View style={styles.container}>
@@ -132,10 +130,10 @@ const FilterBar = ({ navigation }) => {
         <Picker
           style={styles.select}
           selectedValue={category}
-          onValueChange={(itemValue, itemIndex) => setCategories(itemValue)}
+          onValueChange={(itemValue, itemIndex) => handleCategoryChange(itemValue)}
         >
           <Picker.Item label={"Selecciona una categoría"} value={null} />
-          {categFiltered?.map((el, index) => (
+          {categories.map((el, index) => (
             <Picker.Item label={el} value={el} key={index} />
           ))}
         </Picker>
@@ -145,6 +143,7 @@ const FilterBar = ({ navigation }) => {
         <Picker
           style={styles.select}
           selectedValue={provider}
+          enabled={category !== null}
           onValueChange={(itemValue, itemIndex, label) =>
             setProvider(itemValue)
           }
@@ -154,53 +153,28 @@ const FilterBar = ({ navigation }) => {
             label={"Selecciona un especialista"}
             value={undefined}
           />
-          {!category ? (
-            <Picker.Item label={""} value={null} enabled={false} />
-          ) : (
-            usuarios
-              ?.filter((el) =>
-                el.Services.map((a) => a.category).includes(category)
-              )
-              .map((el, index) => (
-                <Picker.Item
-                  label={el.user}
-                  key={index}
-                  value={
-                    el.Services.filter((d) => d.category.includes(category))[0]
-                      .id
-                  }
-                />
-              ))
-          )}
+          {providers.map((el, index) => (
+            <Picker.Item
+              label={el.name}
+              key={`provider${index}`}
+              value={el}
+            />
+          ))}
         </Picker>
       </View>
       <Text style={styles.text}>Selecciona una fecha del calendario:</Text>
       <View style={styles.selectCalendar}>
-        {text === "Empty" ? (
-          <Text style={styles.textCalendar} onPress={() => showMode("date")}>
-            Seleccionar fecha:
-          </Text>
-        ) : (
-          <Text style={styles.textCalendar} onPress={() => showMode("date")}>
-            {text}
-          </Text>
-        )}
+        <Text style={styles.textCalendar} onPress={() => showMode("date")}>
+          {text}
+        </Text>
       </View>
-      {/*  <Text>fecha date: {date.toString()}</Text>
-      <Text>fecha text: {text}</Text>
-      <Text>
-        lo que le llega al post: {text}T{time}
-      </Text>
-      <Text>fecha final: {finalData.toString()}</Text>
-         <Text>hora seleccionada:{"0" + (Number(hora) + 2) + ":" + minuto}</Text>
-      <Text>hora final: {time}</Text> */}
       {show && (
         <DateTimePicker
           testID="dateTimePicker"
           mode={mode}
           is24Hour
           display="default"
-          minimumDate={new Date(Date())}
+          minimumDate={new Date()}
           value={date}
           onChange={onChange}
         />
@@ -210,16 +184,13 @@ const FilterBar = ({ navigation }) => {
         <Picker
           style={styles.select}
           selectedValue={time}
-          onValueChange={(itemValue) => setTime(itemValue)}
+          enabled={provider !== null}
+          onValueChange={(itemValue) => handleTimeChange(itemValue)}
         >
           <Picker.Item label={"Selecciona un horario"} value={null} />
-          {data
-            ?.filter((el) => el.id.includes(provider))
-            .map((time, index) =>
-              time.Date.monday?.map((hour) => (
-                <Picker.Item value={hour} label={hour} key={index} />
-              ))
-            )}
+          {hours.map((hour, index) => (
+            <Picker.Item value={hour} label={hour} key={`date${index}`} />
+          ))}
         </Picker>
       </View>
       <TouchableWithoutFeedback onPress={showAlert}>
