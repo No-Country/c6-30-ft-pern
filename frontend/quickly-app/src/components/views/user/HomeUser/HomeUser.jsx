@@ -13,8 +13,6 @@ const HomeUser = ({ navigation }) => {
   const { user, access } = authData;
   const { userData, loading } = useUserData(user, access);
 
-  console.log(userData, " esto es la userData");
-
   if (loading) return <View></View>;
   return (
     <View style={globalStyles.container}>
