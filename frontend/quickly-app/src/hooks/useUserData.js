@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
+import { useFocusEffect } from "@react-navigation/native"
 
 export default function useUserData(user, access) {
     let [userData, setUserdata] = useState(null)
@@ -20,10 +21,8 @@ export default function useUserData(user, access) {
         fetchUser()
     }, [user, access])
 
-    useEffect(() => {
-        fetchData()
-    }, [fetchData])
-
+    useFocusEffect(fetchData)
+    
     async function postData(data) {
         setLoading(true)
         try {
