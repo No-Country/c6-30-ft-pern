@@ -11,7 +11,7 @@ import SubmitButton from "./SubmitButton";
 
 const FilterBar = ({ navigation }) => {
   const { categories, pickedCategory, updateCategory, provider, providers, setProvider } = useCategories()
-  const { date, dateText, finalDate, updateDate } = useDate()
+  const { date, dateText, finalDate, updateDate } = useDate(provider)
   const { schedule, pickedTime, setPickedTime, updateSchedule } = useTime(provider, date)
   const { mode, show, setShow, showMode } = useMode()
   const { authData } = useAuth();
@@ -42,7 +42,6 @@ const FilterBar = ({ navigation }) => {
   const onChange = (e, selectedDate) => {
     setShow(Platform.OS === "ios");
     updateDate(selectedDate)
-    updateSchedule(selectedDate);
   };
 
   return (
