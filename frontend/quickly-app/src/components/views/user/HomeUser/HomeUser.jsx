@@ -29,21 +29,22 @@ const HomeUser = ({ navigation }) => {
         />
       </View>
       <View style={[globalStyles.container, styles.container]}>
-        <View style={styles.cardContainer}>
+        <ScrollView style={styles.cardContainer}>
           <Text style={styles.text}>Mis turnos:</Text>
           {userData?.Orders.length === 0 ? (
             <Text>Todavia no tienes turnos agendados!</Text>
           ) : (
             userData?.Orders.map((k, index) => (
               <View style={styles.appointment} key={`el${index}`}>
-                <Text>Proveedor:{k.provider}</Text>
-                <Text>Fecha:{new Date(k.date).toString()}</Text>
-                <Text>Descripción:{k.description}</Text>
-                <Text>Descripción:{k.Service?.category}</Text>
+                <Text style={styles.orderText}>
+                  Profesional:
+                  <Text style={styles.orderNames}> {k.provider}</Text>
+                </Text>
+                <Text>{new Date(k.date).toString()}</Text>
               </View>
             ))
           )}
-        </View>
+        </ScrollView>
       </View>
     </ScrollView>
   );

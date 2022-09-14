@@ -10,7 +10,6 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: theme.colors.background,
-    minHeight: "100%",
   },
   appointment: {
     borderWidth: 2,
@@ -22,7 +21,6 @@ const styles = StyleSheet.create({
   cardContainer: {
     backgroundColor: "#F5F5F5",
     padding: 16,
-    bottom: 220
   },
   imgContainer: {
     alignItems: "center",
@@ -35,6 +33,12 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 24,
     marginBottom: 10
+  },
+  orderText: {
+    fontWeight: "bold"
+  },
+  orderNames: {
+    fontWeight: "normal"
   }
 });
 
